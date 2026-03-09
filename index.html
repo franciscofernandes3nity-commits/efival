@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EFIVAL — Arquitectura & Projectos de Excelência</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Syne:wght@400;500;600;700;800&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --gold: #C8A94B;
+      --gold2: #E2C97E;
+      --gold3: #8B6F2A;
+      --dark:  #080807;
+      --dark2: #0E0D0B;
+      --dark3: #161410;
+      --dark4: #1E1B14;
+      --dark5: #26221A;
+      --cream: #F4EFE3;
+      --cream2: #E8E0CC;
+      --muted: #6B6455;
+      --white: #FFFFFF;
+      --red: #C84B4B;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background: var(--dark);
+      color: var(--cream);
+      font-family: 'Lato', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ===== CUSTOM CURSOR ===== */
+    #cur { position:fixed; width:10px; height:10px; background:var(--gold); border-radius:50%; pointer-events:none; z-index:99999; transform:translate(-50%,-50%); transition:width .2s,height .2s,background .2s; mix-blend-mode:difference; }
+    #cur-ring { position:fixed; width:40px; height:40px; border:1px solid rgba(200,169,75,.45); border-radius:50%; pointer-events:none; z-index:99998; transform:translate(-50%,-50%); transition:width .35s cubic-bezier(.25,.46,.45,.94), height .35s cubic-bezier(.25,.46,.45,.94), border-color .3s; }
+    body.cursor-hover #cur { width:14px; height:14px; }
+    body.cursor-hover #cur-ring { width:60px; height:60px; border-color:var(--gold); }
+
+    /* ===== GRAIN OVERLAY ===== */
+    #grain {
+      position:fixed; inset:0; pointer-events:none; z-index:9995; opacity:.55;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    #progress { position:fixed; top:0; left:0; height:2px; background:linear-gradient(90deg,var(--gold3),var(--gold),var(--gold2)); z-index:10000; width:0%; transition:width .1s; }
+
+    /* ===== NAV ===== */
+    nav {
+      position:fixed; top:0; left:0; right:0; z-index:1000;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 60px; height:76px;
+      background:linear-gradient(to bottom, rgba(8,8,7,.97) 0%, rgba(8,8,7,.0) 100%);
+      backdrop-filter: blur(6px);
+      transition: background .4s;
+    }
+    nav.scrolled { background: rgba(8,8,7,.97); border-bottom:1px solid rgba(200,169,75,.12); }
+    .nav-logo {
+      font-family:'Syne',sans-serif; font-weight:800;
+      font-size:1.35rem; letter-spacing:.35em;
+      color:var(--gold); text-decoration:none;
+      display:flex; align-items:center; gap:10px;
+    }
+    .nav-logo-mark {
+      width:28px; height:28px;
+      border:1.5px solid var(--gold);
+      display:flex; align-items:center; justify-content:center;
+      font-size:.65rem; letter-spacing:.1em; color:var(--gold);
+    }
+    .nav-center { display:flex; gap:36px; list-style:none; }
+    .nav-center a {
+      font-family:'Syne',sans-serif; font-size:.68rem; letter-spacing:.22em;
+      text-transform:uppercase; color:var(--cream2); opacity:.55;
+      text-decoration:none; transition:opacity .3s, color .3s;
+      position:relative; padding-bottom:2px;
+    }
+    .nav-center a::after { content:''; position:absolute; bottom:0; left:0; width:0; height:1px; background:var(--gold); transition:width .3s; }
+    .nav-center a:hover { opacity:1; color:var(--gold); }
+    .nav-center a:hover::after { width:100%; }
+    .nav-right { display:flex; gap:12px; align-items:center; }
+    .nav-btn {
+      font-family:'Syne',sans-serif; font-size:.68rem; letter-spacing:.18em;
+      text-transform:uppercase; padding:9px 22px; border:1px solid rgba(200,169,75,.4);
+      background:transparent; color:var(--cream); cursor:none;
+      transition:border-color .3s, background .3s, color .3s;
+    }
+    .nav-btn:hover { border-color:var(--gold); color:var(--gold); }
+    .nav-btn.solid { background:var(--gold); color:var(--dark); border-color:var(--gold); }
+    .nav-btn.solid:hover { background:var(--gold2); border-color:var(--gold2); }
+    .nav-website-link {
+      display:inline-flex; align-items:center; gap:7px;
+      font-family:'Syne',sans-serif; font-size:.62rem; letter-spacing:.18em;
+      text-transform:uppercase; color:var(--gold2); opacity:.7;
+      text-decoration:none; padding:6px 14px;
+      border:1px solid rgba(200,169,75,.2);
+      transition:opacity .3s, border-color .3s, color .3s;
+    }
+    .nav-website-link:hover { opacity:1; border-color:var(--gold); color:var(--gold); }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height:100vh; display:grid; grid-template-columns:1fr 1fr;
+      position:relative; overflow:hidden;
+    }
+    .hero-bg-left {
+      position:absolute; inset:0 50% 0 0;
+      background:radial-gradient(ellipse at 30% 60%, rgba(200,169,75,.07) 0%, transparent 65%);
+      pointer-events:none;
+    }
+    .hero-left {
+      display:flex; flex-direction:column; justify-content:center;
+      padding:120px 70px 80px 60px; position:relative; z-index:2;
+    }
+    .hero-eyebrow {
+      font-family:'Syne',sans-serif; font-size:.6rem; letter-spacing:.4em;
+      text-transform:uppercase; color:var(--gold); margin-bottom:32px;
+      display:flex; align-items:center; gap:14px; opacity:0;
+      animation: fadeUp .8s .2s forwards;
+    }
+    .hero-eyebrow-line { width:44px; height:1px; background:linear-gradient(90deg,var(--gold),transparent); }
+    .hero-h1 {
+      font-family:'Playfair Display',serif; font-size:clamp(3.2rem,5.5vw,6rem);
+      font-weight:700; line-height:1.02; letter-spacing:-.02em;
+      margin-bottom:28px; opacity:0; animation: fadeUp .9s .35s forwards;
+    }
+    .hero-h1 em { font-style:italic; color:var(--gold); font-weight:400; }
+    .hero-h1 span.outline {
+      -webkit-text-stroke: 1px rgba(200,169,75,.45);
+      color: transparent;
+    }
+    .hero-sub {
+      font-size:.93rem; line-height:1.85; color:var(--cream2); opacity:0;
+      max-width:400px; margin-bottom:48px;
+      animation: fadeUp .9s .5s forwards;
+    }
+    .hero-sub strong { color:var(--gold); font-weight:400; }
+    .hero-actions { display:flex; gap:20px; align-items:center; opacity:0; animation: fadeUp .9s .65s forwards; }
+    .btn-gold {
+      background:var(--gold); color:var(--dark);
+      font-family:'Syne',sans-serif; font-size:.7rem; letter-spacing:.22em;
+      text-transform:uppercase; font-weight:700;
+      padding:15px 38px; border:none; cursor:none; text-decoration:none;
+      display:inline-flex; align-items:center; gap:10px;
+      transition:background .3s, transform .25s, box-shadow .3s;
+      box-shadow: 0 0 0 0 rgba(200,169,75,0);
+    }
+    .btn-gold:hover { background:var(--gold2); transform:translateY(-3px); box-shadow: 0 16px 40px rgba(200,169,75,.25); }
+    .btn-ghost {
+      font-family:'Syne',sans-serif; font-size:.7rem; letter-spacing:.22em;
+      text-transform:uppercase; color:var(--cream2); opacity:.6;
+      text-decoration:none; display:inline-flex; align-items:center; gap:10px;
+      transition:opacity .3s, gap .3s;
+    }
+    .btn-ghost:hover { opacity:1; gap:16px; }
+    .hero-scroll {
+      position:absolute; bottom:42px; left:60px;
+      display:flex; flex-direction:column; align-items:center; gap:8px;
+      opacity:0; animation: fadeUp .8s 1s forwards;
+    }
+    .hero-scroll span { font-family:'Syne',sans-serif; font-size:.55rem; letter-spacing:.35em; text-transform:uppercase; color:var(--muted); writing-mode:vertical-lr; }
+    .hero-scroll-track { width:1px; height:60px; background:rgba(200,169,75,.2); position:relative; overflow:hidden; }
+    .hero-scroll-track::after { content:''; position:absolute; top:-100%; left:0; width:100%; height:50%; background:var(--gold); animation:scrollDown 2s 1.2s infinite; }
+    @keyframes scrollDown { 0%{top:-60%} 100%{top:160%} }
+
+    .hero-right {
+      position:relative; overflow:hidden;
+      background:var(--dark2);
+    }
+    .hero-right-overlay {
+      position:absolute; inset:0;
+      background:
+        linear-gradient(to right, var(--dark) 0%, transparent 20%),
+        radial-gradient(ellipse at 70% 40%, rgba(200,169,75,.09) 0%, transparent 65%);
+      z-index:2;
+    }
+    .hero-arch-canvas {
+      position:absolute; inset:0; z-index:1;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .hero-stats-row {
+      position:absolute; bottom:56px; right:48px; z-index:3;
+      display:flex; gap:40px;
+      opacity:0; animation: fadeUp .8s .8s forwards;
+    }
+    .hstat { text-align:right; }
+    .hstat-n {
+      font-family:'Playfair Display',serif; font-size:2.6rem; font-weight:700;
+      color:var(--gold); line-height:1; letter-spacing:-.02em;
+    }
+    .hstat-n sup { font-size:1rem; font-weight:400; }
+    .hstat-l { font-family:'Syne',sans-serif; font-size:.55rem; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); margin-top:4px; }
+
+    /* Hero tag pills */
+    .hero-tags {
+      position:absolute; top:48px; right:40px; z-index:3;
+      display:flex; flex-direction:column; gap:10px; align-items:flex-end;
+      opacity:0; animation: fadeUp .8s .9s forwards;
+    }
+    .hero-tag {
+      font-family:'Syne',sans-serif; font-size:.58rem; letter-spacing:.18em;
+      text-transform:uppercase; padding:7px 16px;
+      border:1px solid rgba(200,169,75,.25); color:var(--gold2);
+      background:rgba(8,8,7,.7); backdrop-filter:blur(8px);
+    }
+
+    /* ===== TICKER ===== */
+    .ticker { background:var(--gold); padding:13px 0; overflow:hidden; white-space:nowrap; }
+    .ticker-track { display:inline-flex; animation:tick 35s linear infinite; }
+    .ticker-item {
+      font-family:'Syne',sans-serif; font-size:.65rem; letter-spacing:.3em;
+      text-transform:uppercase; color:var(--dark); font-weight:700;
+      padding:0 40px; display:inline-flex; align-items:center; gap:20px;
+    }
+    .ticker-item::after { content:'◆'; opacity:.35; font-size:.5rem; }
+    @keyframes tick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* ===== SECTIONS ===== */
+    section { padding:130px 60px; }
+    .sec-label {
+      font-family:'Syne',sans-serif; font-size:.58rem; letter-spacing:.4em;
+      text-transform:uppercase; color:var(--gold); margin-bottom:18px;
+      display:flex; align-items:center; gap:14px;
+    }
+    .sec-label::before { content:''; width:28px; height:1px; background:var(--gold); flex-shrink:0; }
+    .sec-h {
+      font-family:'Playfair Display',serif; font-size:clamp(2.4rem,3.8vw,4.2rem);
+      font-weight:700; line-height:1.08; letter-spacing:-.02em; margin-bottom:20px;
+    }
+    .sec-h em { font-style:italic; color:var(--gold); font-weight:400; }
+
+    /* ===== NUMBERS BAND ===== */
+    .numbers-band {
+      background:var(--dark3); padding:70px 60px;
+      display:grid; grid-template-columns:repeat(4,1fr);
+      border-top:1px solid rgba(200,169,75,.1);
+      border-bottom:1px solid rgba(200,169,75,.1);
+    }
+    .nb-item {
+      padding:0 40px; border-right:1px solid rgba(200,169,75,.12);
+      text-align:center;
+    }
+    .nb-item:last-child { border-right:none; }
+    .nb-num {
+      font-family:'Playfair Display',serif; font-size:3.4rem; font-weight:700;
+      color:var(--gold); line-height:1; letter-spacing:-.02em;
+    }
+    .nb-num sup { font-size:1.2rem; font-weight:400; }
+    .nb-label { font-family:'Syne',sans-serif; font-size:.62rem; letter-spacing:.25em; text-transform:uppercase; color:var(--muted); margin-top:8px; }
+
+    /* ===== ABOUT ===== */
+    .about { background:var(--dark2); display:grid; grid-template-columns:1fr 1fr; gap:100px; align-items:center; }
+    .about-visual { position:relative; }
+    .about-img-main {
+      width:100%; aspect-ratio:4/5;
+      background:var(--dark4);
+      border:1px solid rgba(200,169,75,.15);
+      position:relative; overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .about-img-badge {
+      position:absolute; bottom:28px; left:-24px;
+      background:var(--gold); padding:20px 28px;
+      z-index:2;
+    }
+    .about-img-badge .big { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; color:var(--dark); line-height:1; }
+    .about-img-badge .small { font-family:'Syne',sans-serif; font-size:.58rem; letter-spacing:.2em; text-transform:uppercase; color:var(--dark); opacity:.7; margin-top:4px; }
+    .about-img-secondary {
+      position:absolute; top:32px; right:-24px;
+      width:48%; aspect-ratio:1;
+      background:var(--dark3); border:1px solid rgba(200,169,75,.2);
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+    }
+    .about-text { }
+    .about-text p { font-size:.92rem; line-height:1.95; color:var(--cream2); opacity:.72; margin-bottom:22px; }
+    .about-feats { display:grid; grid-template-columns:1fr 1fr; gap:1px; margin-top:44px; background:rgba(200,169,75,.08); }
+    .af-item {
+      background:var(--dark2); padding:28px 24px;
+      transition:background .3s;
+    }
+    .af-item:hover { background:var(--dark3); }
+    .af-icon { color:var(--gold); font-size:1.4rem; margin-bottom:12px; }
+    .af-title { font-family:'Syne',sans-serif; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--gold2); margin-bottom:6px; }
+    .af-desc { font-size:.8rem; color:var(--cream2); opacity:.5; line-height:1.6; }
+
+    /* ===== PROJECTS ===== */
+    .projects { background:var(--dark); }
+    .projects-top { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:52px; flex-wrap:wrap; gap:20px; }
+    .projects-filters { display:flex; gap:2px; }
+    .pf-btn {
+      font-family:'Syne',sans-serif; font-size:.6rem; letter-spacing:.18em;
+      text-transform:uppercase; padding:9px 20px;
+      background:var(--dark3); color:var(--cream2); opacity:.5;
+      border:none; cursor:none; transition:all .25s;
+    }
+    .pf-btn.active, .pf-btn:hover { background:var(--gold); color:var(--dark); opacity:1; }
+    .projects-grid {
+      display:grid;
+      grid-template-columns:1.4fr 1fr 1fr;
+      grid-template-rows:auto auto;
+      gap:3px;
+    }
+    .pc { position:relative; overflow:hidden; background:var(--dark3); cursor:none; }
+    .pc:nth-child(1) { grid-row: span 2; }
+    .pc:nth-child(4) { grid-column: span 2; }
+    .pc-bg { position:absolute; inset:0; transition:transform .8s cubic-bezier(.25,.46,.45,.94); }
+    .pc:hover .pc-bg { transform:scale(1.06); }
+    .pc-bg-1 { background:linear-gradient(160deg,#1a160a,#0f0e08); }
+    .pc-bg-2 { background:linear-gradient(160deg,#0c111a,#0a0d14); }
+    .pc-bg-3 { background:linear-gradient(160deg,#110a14,#0c080f); }
+    .pc-bg-4 { background:linear-gradient(160deg,#080e0a,#0a1208); }
+    .pc-bg-5 { background:linear-gradient(160deg,#14100a,#100c06); }
+    .pc-svg { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.22; transition:opacity .5s; }
+    .pc:hover .pc-svg { opacity:.45; }
+    .pc-overlay {
+      position:absolute; inset:0;
+      background:linear-gradient(to top, rgba(8,8,7,.97) 0%, rgba(8,8,7,.3) 50%, transparent 100%);
+      display:flex; flex-direction:column; justify-content:flex-end;
+      padding:32px; transform:translateY(10px); transition:transform .45s;
+    }
+    .pc:hover .pc-overlay { transform:translateY(0); }
+    .pc-tag { font-family:'Syne',sans-serif; font-size:.58rem; letter-spacing:.28em; text-transform:uppercase; color:var(--gold); margin-bottom:7px; }
+    .pc-name { font-family:'Playfair Display',serif; font-size:1.55rem; font-weight:500; line-height:1.15; margin-bottom:6px; }
+    .pc:nth-child(1) .pc-name { font-size:2rem; }
+    .pc-meta { font-size:.72rem; color:var(--cream2); opacity:.5; }
+    .pc-price { font-family:'Syne',sans-serif; font-size:1.15rem; font-weight:700; color:var(--gold); margin-top:14px; letter-spacing:.04em; }
+    .pc-actions { display:flex; gap:8px; margin-top:14px; opacity:0; transform:translateY(12px); transition:opacity .35s .1s, transform .35s .1s; }
+    .pc:hover .pc-actions { opacity:1; transform:translateY(0); }
+    .pc-btn {
+      font-family:'Syne',sans-serif; font-size:.58rem; letter-spacing:.18em;
+      text-transform:uppercase; padding:9px 20px;
+      background:var(--gold); color:var(--dark); border:none; cursor:none;
+      transition:background .25s;
+    }
+    .pc-btn:hover { background:var(--gold2); }
+    .pc-btn-ghost {
+      font-family:'Syne',sans-serif; font-size:.58rem; letter-spacing:.18em;
+      text-transform:uppercase; padding:9px 20px;
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+      color:var(--cream2); cursor:none; transition:border-color .25s;
+    }
+    .pc-btn-ghost:hover { border-color:var(--gold); color:var(--gold); }
+    .pc-rating { position:absolute; top:20px; right:20px; background:rgba(8,8,7,.85); backdrop-filter:blur(8px); padding:6px 12px; display:flex; align-items:center; gap:6px; border:1px solid rgba(200,169,75,.2); }
+    .pc-rating span { font-family:'Syne',sans-serif; font-size:.6rem; font-weight:700; color:var(--gold2); }
+    .pc-rating-star { color:var(--gold); font-size:.65rem; }
+    .pc-new { position:absolute; top:20px; left:20px; background:var(--gold); padding:5px 12px; font-family:'Syne',sans-serif; font-size:.55rem; letter-spacing:.2em; text-transform:uppercase; color:var(--dark); font-weight:700; }
+
+    /* pc heights */
+    .pc:nth-child(1) { min-height: 680px; }
+    .pc:nth-child(2),
+    .pc:nth-child(3) { min-height: 335px; }
+    .pc:nth-child(4) { min-height: 335px; }
+    .pc:nth-child(5) { min-height: 335px; }
+
+    /* ===== SERVICES ===== */
+    .services { background:var(--dark3); display:grid; grid-template-columns:380px 1fr; gap:90px; }
+    .services-left { position:sticky; top:100px; align-self:start; }
+    .services-left p { font-size:.9rem; line-height:1.9; color:var(--cream2); opacity:.6; margin-top:20px; margin-bottom:36px; }
+    .services-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; }
+    .sv-item {
+      background:var(--dark2); padding:40px 34px;
+      position:relative; overflow:hidden;
+      transition:background .3s;
+    }
+    .sv-item::after {
+      content:''; position:absolute; bottom:0; left:0;
+      width:0; height:2px; background:var(--gold);
+      transition:width .45s cubic-bezier(.25,.46,.45,.94);
+    }
+    .sv-item:hover { background:var(--dark4); }
+    .sv-item:hover::after { width:100%; }
+    .sv-num { font-family:'Playfair Display',serif; font-size:4rem; font-weight:700; color:rgba(200,169,75,.08); line-height:1; margin-bottom:20px; letter-spacing:-.03em; }
+    .sv-icon { color:var(--gold); margin-bottom:14px; font-size:1.6rem; }
+    .sv-title { font-family:'Syne',sans-serif; font-size:.82rem; letter-spacing:.1em; text-transform:uppercase; margin-bottom:12px; color:var(--cream); }
+    .sv-desc { font-size:.8rem; color:var(--cream2); opacity:.48; line-height:1.75; }
+    .sv-arrow { position:absolute; top:28px; right:28px; color:var(--gold); opacity:0; transform:translateX(-8px); transition:opacity .3s, transform .3s; font-size:1rem; }
+    .sv-item:hover .sv-arrow { opacity:1; transform:translateX(0); }
+
+    /* ===== HOW IT WORKS ===== */
+    .hiw { background:var(--dark2); }
+    .hiw-header { text-align:center; margin-bottom:70px; }
+    .hiw-header .sec-label { justify-content:center; }
+    .hiw-header .sec-label::before { display:none; }
+    .hiw-steps { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; }
+    .hiw-step {
+      background:var(--dark3); padding:52px 36px;
+      position:relative; text-align:center;
+      transition:background .3s;
+    }
+    .hiw-step:hover { background:var(--dark4); }
+    .hiw-step-icon { width:56px; height:56px; border-radius:50%; border:1px solid rgba(200,169,75,.3); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; color:var(--gold); font-size:1.3rem; transition:background .3s, border-color .3s; }
+    .hiw-step:hover .hiw-step-icon { background:var(--gold); border-color:var(--gold); color:var(--dark); }
+    .hiw-step-n { font-family:'Playfair Display',serif; font-size:4rem; font-weight:700; color:rgba(200,169,75,.06); line-height:1; position:absolute; bottom:16px; right:20px; letter-spacing:-.03em; }
+    .hiw-step-title { font-family:'Syne',sans-serif; font-size:.8rem; letter-spacing:.14em; text-transform:uppercase; margin-bottom:10px; color:var(--gold2); }
+    .hiw-step-desc { font-size:.8rem; color:var(--cream2); opacity:.5; line-height:1.75; }
+    .hiw-connector { position:absolute; top:50px; right:-16px; z-index:2; color:var(--gold); opacity:.3; font-size:.9rem; }
+    .hiw-step:last-child .hiw-connector { display:none; }
+
+    /* ===== PRICING ===== */
+    .pricing { background:var(--dark); }
+    .pricing-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:60px; flex-wrap:wrap; gap:20px; }
+    .pricing-toggle { display:flex; align-items:center; gap:14px; }
+    .toggle-track { width:44px; height:22px; background:var(--dark4); border:1px solid rgba(200,169,75,.2); border-radius:11px; position:relative; cursor:none; transition:background .3s; }
+    .toggle-track.on { background:var(--gold); }
+    .toggle-thumb { position:absolute; top:3px; left:3px; width:14px; height:14px; background:var(--cream); border-radius:50%; transition:transform .3s; }
+    .toggle-track.on .toggle-thumb { transform:translateX(22px); background:var(--dark); }
+    .toggle-label { font-family:'Syne',sans-serif; font-size:.65rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+    .toggle-label.active { color:var(--gold); }
+    .toggle-save { background:var(--gold); color:var(--dark); font-family:'Syne',sans-serif; font-size:.55rem; letter-spacing:.15em; text-transform:uppercase; font-weight:700; padding:3px 10px; margin-left:4px; }
+    .pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+    .price-card { background:var(--dark3); padding:52px 44px; position:relative; transition:background .3s; }
+    .price-card:hover { background:var(--dark4); }
+    .price-card.featured { background:var(--gold); }
+    .pc-ribbon { position:absolute; top:-1px; right:36px; background:var(--dark); color:var(--gold); font-family:'Syne',sans-serif; font-size:.55rem; letter-spacing:.2em; text-transform:uppercase; font-weight:700; padding:6px 16px; }
+    .price-card.featured .pc-ribbon { background:var(--dark); color:var(--gold); }
+    .pc-tier { font-family:'Syne',sans-serif; font-size:.62rem; letter-spacing:.28em; text-transform:uppercase; color:var(--muted); margin-bottom:20px; }
+    .price-card.featured .pc-tier { color:rgba(8,8,7,.6); }
+    .pc-price-row { display:flex; align-items:flex-start; gap:4px; margin-bottom:6px; }
+    .pc-currency { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; color:var(--gold); margin-top:6px; }
+    .price-card.featured .pc-currency { color:var(--dark); }
+    .pc-amount { font-family:'Playfair Display',serif; font-size:3.8rem; font-weight:700; line-height:1; color:var(--gold); letter-spacing:-.02em; }
+    .price-card.featured .pc-amount { color:var(--dark); }
+    .pc-period { font-family:'Syne',sans-serif; font-size:.65rem; letter-spacing:.12em; color:var(--muted); margin-bottom:36px; }
+    .price-card.featured .pc-period { color:rgba(8,8,7,.55); }
+    .pc-divider { height:1px; background:rgba(200,169,75,.12); margin-bottom:30px; }
+    .price-card.featured .pc-divider { background:rgba(8,8,7,.12); }
+    .pc-feats { list-style:none; margin-bottom:36px; }
+    .pc-feats li { font-size:.82rem; padding:11px 0; border-bottom:1px solid rgba(200,169,75,.07); display:flex; align-items:center; gap:12px; color:var(--cream2); opacity:.75; }
+    .price-card.featured .pc-feats li { border-bottom-color:rgba(8,8,7,.08); color:var(--dark); opacity:.85; }
+    .pc-feats li::before { content:'✓'; color:var(--gold); font-size:.7rem; flex-shrink:0; font-weight:700; }
+    .price-card.featured .pc-feats li::before { color:var(--dark); }
+    .pc-feats li.disabled { opacity:.35; }
+    .pc-feats li.disabled::before { content:'—'; color:currentColor; }
+    .pc-cta {
+      width:100%; padding:15px;
+      font-family:'Syne',sans-serif; font-size:.68rem; letter-spacing:.22em; text-transform:uppercase; font-weight:700;
+      cursor:none; border:1px solid rgba(200,169,75,.35);
+      background:transparent; color:var(--gold);
+      transition:all .3s;
+    }
+    .pc-cta:hover { background:var(--gold); color:var(--dark); border-color:var(--gold); }
+    .price-card.featured .pc-cta { background:var(--dark); border-color:var(--dark); color:var(--gold); }
+    .price-card.featured .pc-cta:hover { background:var(--dark2); }
+
+    /* ===== TESTIMONIALS ===== */
+    .testimonials { background:var(--dark3); }
+    .test-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; margin-top:60px; }
+    .test-card { background:var(--dark2); padding:44px 40px; position:relative; transition:background .3s; }
+    .test-card:hover { background:var(--dark4); }
+    .test-quote { color:var(--gold); font-family:'Playfair Display',serif; font-size:4rem; line-height:.8; margin-bottom:16px; opacity:.3; }
+    .test-stars { color:var(--gold); letter-spacing:3px; font-size:.75rem; margin-bottom:20px; }
+    .test-text { font-family:'Playfair Display',serif; font-size:1.05rem; font-style:italic; line-height:1.75; color:var(--cream2); opacity:.85; margin-bottom:28px; }
+    .test-author { display:flex; align-items:center; gap:14px; padding-top:24px; border-top:1px solid rgba(200,169,75,.1); }
+    .test-av { width:46px; height:46px; border-radius:50%; background:var(--dark3); border:2px solid rgba(200,169,75,.35); display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:700; color:var(--gold); font-size:.8rem; flex-shrink:0; }
+    .test-name { font-family:'Syne',sans-serif; font-size:.78rem; font-weight:600; color:var(--cream); }
+    .test-role { font-size:.7rem; color:var(--muted); margin-top:2px; }
+    .test-verified { position:absolute; top:20px; right:20px; color:var(--gold); font-size:.7rem; display:flex; align-items:center; gap:5px; }
+    .test-verified span { font-family:'Syne',sans-serif; font-size:.55rem; letter-spacing:.15em; text-transform:uppercase; }
+
+    /* ===== CTA BAND ===== */
+    .cta-band {
+      background:var(--gold); padding:90px 60px;
+      display:grid; grid-template-columns:1fr auto; gap:60px; align-items:center;
+    }
+    .cta-band h2 { font-family:'Playfair Display',serif; font-size:clamp(2rem,3.5vw,3.5rem); font-weight:700; color:var(--dark); line-height:1.1; }
+    .cta-band h2 em { font-style:italic; font-weight:400; }
+    .cta-band-sub { font-size:.9rem; color:var(--dark3); opacity:.7; margin-top:12px; }
+    .cta-band-actions { display:flex; gap:14px; flex-wrap:wrap; }
+    .btn-dark { background:var(--dark); color:var(--gold); font-family:'Syne',sans-serif; font-size:.7rem; letter-spacing:.22em; text-transform:uppercase; font-weight:700; padding:16px 38px; border:none; cursor:none; transition:background .3s; }
+    .btn-dark:hover { background:var(--dark2); }
+    .btn-outline-dark { background:transparent; color:var(--dark); font-family:'Syne',sans-serif; font-size:.7rem; letter-spacing:.22em; text-transform:uppercase; font-weight:700; padding:16px 38px; border:2px solid rgba(8,8,7,.3); cursor:none; transition:border-color .3s; }
+    .btn-outline-dark:hover { border-color:var(--dark); }
+
+    /* ===== PARTNERS ===== */
+    .partners { background:var(--dark2); padding:70px 60px; border-bottom:1px solid rgba(200,169,75,.08); }
+    .partners-label { font-family:'Syne',sans-serif; font-size:.58rem; letter-spacing:.35em; text-transform:uppercase; color:var(--muted); text-align:center; margin-bottom:40px; }
+    .partners-row { display:flex; gap:0; justify-content:center; align-items:center; border:1px solid rgba(200,169,75,.1); }
+    .partner-item { flex:1; padding:28px 20px; border-right:1px solid rgba(200,169,75,.1); text-align:center; transition:background .3s; }
+    .partner-item:last-child { border-right:none; }
+    .partner-item:hover { background:var(--dark3); }
+    .partner-name { font-family:'Syne',sans-serif; font-size:.8rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); transition:color .3s; }
+    .partner-item:hover .partner-name { color:var(--gold2); }
+    .partner-sub { font-size:.65rem; color:var(--muted); opacity:.5; margin-top:4px; }
+
+    /* ===== BLOG ===== */
+    .blog { background:var(--dark); }
+    .blog-grid { display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:3px; margin-top:52px; }
+    .blog-card { background:var(--dark2); overflow:hidden; position:relative; cursor:none; transition:background .3s; }
+    .blog-card:hover { background:var(--dark3); }
+    .blog-card-img {
+      aspect-ratio:16/9; background:var(--dark3);
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden; position:relative;
+    }
+    .blog-card:nth-child(1) .blog-card-img { aspect-ratio:4/3; }
+    .blog-card-body { padding:28px 28px 32px; }
+    .blog-tag { font-family:'Syne',sans-serif; font-size:.55rem; letter-spacing:.25em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
+    .blog-title { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:500; line-height:1.3; margin-bottom:10px; }
+    .blog-card:nth-child(1) .blog-title { font-size:1.5rem; }
+    .blog-meta { font-size:.72rem; color:var(--muted); display:flex; gap:16px; }
+    .blog-arrow { position:absolute; bottom:28px; right:28px; color:var(--gold); opacity:0; transform:translateX(-10px); transition:opacity .3s, transform .3s; }
+    .blog-card:hover .blog-arrow { opacity:1; transform:translateX(0); }
+
+    /* ===== NEWSLETTER ===== */
+    .newsletter { background:var(--dark3); padding:90px 60px; display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+    .nl-form { display:flex; gap:0; }
+    .nl-input {
+      flex:1; background:var(--dark2); border:1px solid rgba(200,169,75,.2);
+      border-right:none; color:var(--cream); padding:15px 20px;
+      font-family:'Lato',sans-serif; font-size:.9rem;
+      outline:none; transition:border-color .3s;
+    }
+    .nl-input:focus { border-color:var(--gold); }
+    .nl-input::placeholder { color:var(--muted); opacity:.7; }
+    .nl-btn {
+      background:var(--gold); color:var(--dark); border:none;
+      font-family:'Syne',sans-serif; font-size:.65rem; letter-spacing:.2em;
+      text-transform:uppercase; font-weight:700; padding:15px 28px;
+      cursor:none; transition:background .3s; white-space:nowrap;
+    }
+    .nl-btn:hover { background:var(--gold2); }
+    .nl-note { font-size:.72rem; color:var(--muted); margin-top:12px; }
+
+    /* ===== FOOTER ===== */
+    footer { background:var(--dark); border-top:1px solid rgba(200,169,75,.12); padding:90px 60px 44px; }
+    .footer-top { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:70px; margin-bottom:70px; }
+    .footer-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:2.2rem; letter-spacing:.35em; color:var(--gold); margin-bottom:16px; display:block; }
+    .footer-desc { font-size:.83rem; color:var(--cream2); opacity:.4; line-height:1.85; max-width:300px; }
+    .footer-social-row { display:flex; gap:8px; margin-top:28px; }
+    .footer-social { width:36px; height:36px; border:1px solid rgba(200,169,75,.15); display:flex; align-items:center; justify-content:center; color:var(--cream2); opacity:.45; font-size:.72rem; font-family:'Syne',sans-serif; text-decoration:none; transition:all .3s; }
+    .footer-social:hover { border-color:var(--gold); color:var(--gold); opacity:1; }
+    .footer-col-title { font-family:'Syne',sans-serif; font-size:.58rem; letter-spacing:.3em; text-transform:uppercase; color:var(--gold); margin-bottom:22px; }
+    .footer-links { list-style:none; }
+    .footer-links li { margin-bottom:11px; }
+    .footer-links a { font-size:.82rem; color:var(--cream2); opacity:.4; text-decoration:none; transition:opacity .3s, color .3s; }
+    .footer-links a:hover { opacity:.9; color:var(--gold2); }
+    .footer-bottom { display:flex; justify-content:space-between; align-items:center; padding-top:36px; border-top:1px solid rgba(255,255,255,.04); flex-wrap:wrap; gap:16px; }
+    .footer-copy { font-size:.7rem; color:var(--muted); }
+    .footer-legal { display:flex; gap:24px; }
+    .footer-legal a { font-size:.7rem; color:var(--muted); text-decoration:none; transition:color .3s; }
+    .footer-legal a:hover { color:var(--gold2); }
+    .footer-website-bar {
+      display:flex; align-items:center; justify-content:center; gap:20px;
+      padding:18px 0 28px;
+      border-top:1px solid rgba(200,169,75,.1);
+      margin-bottom:0;
+    }
+    .footer-website-label {
+      font-family:'Syne',sans-serif; font-size:.58rem; letter-spacing:.3em;
+      text-transform:uppercase; color:var(--muted);
+    }
+    .footer-website-link {
+      display:inline-flex; align-items:center; gap:9px;
+      font-family:'Syne',sans-serif; font-size:.82rem; font-weight:700;
+      letter-spacing:.12em; color:var(--gold);
+      text-decoration:none; padding:10px 26px;
+      border:1px solid rgba(200,169,75,.35);
+      background:rgba(200,169,75,.04);
+      transition:background .3s, border-color .3s, color .3s, transform .25s, box-shadow .3s;
+    }
+    .footer-website-link:hover {
+      background:var(--gold); color:var(--dark);
+      border-color:var(--gold); transform:translateY(-2px);
+      box-shadow: 0 10px 30px rgba(200,169,75,.2);
+    }
+    .footer-badge { display:flex; align-items:center; gap:8px; }
+    .footer-badge-dot { width:7px; height:7px; border-radius:50%; background:var(--gold); animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+    .footer-badge span { font-family:'Syne',sans-serif; font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.88);
+      backdrop-filter:blur(12px); z-index:5000;
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    .modal-overlay.open { opacity:1; pointer-events:all; }
+    .modal {
+      background:var(--dark2); border:1px solid rgba(200,169,75,.2);
+      width:100%; max-width:480px; padding:60px;
+      position:relative; transform:translateY(28px) scale(.98);
+      transition:transform .4s cubic-bezier(.25,.46,.45,.94);
+    }
+    .modal-overlay.open .modal { transform:translateY(0) scale(1); }
+    .modal-close { position:absolute; top:18px; right:22px; background:none; border:none; color:var(--cream2); font-size:1.2rem; cursor:none; opacity:.4; transition:opacity .2s; }
+    .modal-close:hover { opacity:1; }
+    .modal-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.6rem; letter-spacing:.3em; color:var(--gold); margin-bottom:6px; }
+    .modal-sub { font-size:.78rem; color:var(--cream2); opacity:.45; margin-bottom:40px; letter-spacing:.04em; }
+    .social-login-btn {
+      width:100%; padding:14px 18px; margin-bottom:10px;
+      border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.02);
+      color:var(--cream); font-family:'Syne',sans-serif; font-size:.72rem;
+      letter-spacing:.1em; display:flex; align-items:center; gap:12px;
+      cursor:none; transition:border-color .3s, background .3s;
+    }
+    .social-login-btn:hover { border-color:var(--gold); background:rgba(200,169,75,.06); }
+    .social-login-btn svg { width:18px; height:18px; flex-shrink:0; }
+    .modal-divider { display:flex; align-items:center; gap:14px; margin:22px 0; }
+    .modal-divider::before,.modal-divider::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.07); }
+    .modal-divider span { font-family:'Syne',sans-serif; font-size:.58rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+    .modal-field {
+      width:100%; background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08); color:var(--cream);
+      padding:14px 16px; font-family:'Lato',sans-serif; font-size:.88rem;
+      margin-bottom:10px; outline:none; transition:border-color .3s;
+    }
+    .modal-field:focus { border-color:var(--gold); }
+    .modal-field::placeholder { color:var(--muted); opacity:.8; }
+    .modal-submit {
+      width:100%; background:var(--gold); color:var(--dark); border:none;
+      padding:15px; font-family:'Syne',sans-serif; font-size:.7rem;
+      letter-spacing:.22em; text-transform:uppercase; font-weight:700;
+      cursor:none; margin-top:6px; transition:background .3s;
+    }
+    .modal-submit:hover { background:var(--gold2); }
+    .modal-foot { font-size:.7rem; color:var(--cream2); opacity:.35; text-align:center; margin-top:20px; line-height:1.75; }
+    .modal-foot a { color:var(--gold); opacity:1; text-decoration:none; }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position:fixed; bottom:36px; right:36px; z-index:9000;
+      background:var(--dark2); border:1px solid rgba(200,169,75,.3);
+      border-left:3px solid var(--gold); padding:18px 24px;
+      max-width:340px; transform:translateX(130%);
+      transition:transform .45s cubic-bezier(.25,.46,.45,.94);
+      pointer-events:none;
+    }
+    .toast.show { transform:translateX(0); }
+    .toast-title { font-family:'Syne',sans-serif; font-size:.72rem; letter-spacing:.1em; color:var(--gold); font-weight:700; margin-bottom:5px; }
+    .toast-msg { font-size:.75rem; color:var(--cream2); opacity:.6; line-height:1.55; }
+
+    /* ===== REVEAL ANIMATIONS ===== */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+    .reveal { opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+    .reveal-delay-1 { transition-delay:.1s; }
+    .reveal-delay-2 { transition-delay:.2s; }
+    .reveal-delay-3 { transition-delay:.3s; }
+
+    /* ===== RESPONSIVE ===== */
+    @media(max-width:1100px){
+      nav { padding:0 28px; }
+      .nav-center,.nav-btn:first-child { display:none; }
+      section { padding:80px 28px; }
+      .hero { grid-template-columns:1fr; }
+      .hero-right { display:none; }
+      .hero-left { padding:120px 28px 80px; }
+      .numbers-band { grid-template-columns:repeat(2,1fr); }
+      .nb-item:nth-child(2) { border-right:none; }
+      .nb-item:nth-child(3) { border-top:1px solid rgba(200,169,75,.12); }
+      .nb-item:nth-child(4) { border-right:none; border-top:1px solid rgba(200,169,75,.12); }
+      .about { grid-template-columns:1fr; }
+      .about-img-secondary { display:none; }
+      .about-img-badge { left:0; }
+      .projects-grid { grid-template-columns:1fr 1fr; }
+      .pc:nth-child(1){ grid-row:span 1; }
+      .pc:nth-child(4){ grid-column:span 1; }
+      .services { grid-template-columns:1fr; }
+      .services-left { position:static; }
+      .pricing-grid,.test-grid,.hiw-steps,.blog-grid { grid-template-columns:1fr; }
+      .cta-band { grid-template-columns:1fr; }
+      .newsletter { grid-template-columns:1fr; }
+      .footer-top { grid-template-columns:1fr 1fr; }
+      .partners-row { flex-wrap:wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="grain"></div>
+<div id="progress"></div>
+<div id="cur"></div>
+<div id="cur-ring"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toast-title">Bem-vindo à EFIVAL</div>
+  <div class="toast-msg" id="toast-msg">Descubra o nosso catálogo de projectos arquitectónicos de excelência.</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-logo">EFIVAL</div>
+    <div class="modal-sub">Aceda à sua conta para explorar e adquirir projectos</div>
+    <button class="social-login-btn" onclick="doLogin('Google')">
+      <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Continuar com Google
+    </button>
+    <button class="social-login-btn" onclick="doLogin('Facebook')">
+      <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      Continuar com Facebook
+    </button>
+    <button class="social-login-btn" onclick="doLogin('Apple')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09z"/><path d="M15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701z"/></svg>
+      Continuar com Apple
+    </button>
+    <div class="modal-divider"><span>ou com email</span></div>
+    <input class="modal-field" type="email" placeholder="O seu endereço de email" />
+    <input class="modal-field" type="password" placeholder="Palavra-passe" />
+    <button class="modal-submit" onclick="doLogin('Email')">Entrar na conta</button>
+    <p class="modal-foot">Ao entrar, aceita os nossos <a href="#">Termos de Serviço</a> e <a href="#">Política de Privacidade</a>.<br/>Não tem conta? <a href="#" onclick="doLogin('Registo')">Registe-se gratuitamente</a></p>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">
+    <span class="nav-logo-mark">EF</span>
+    EFIVAL
+  </a>
+  <ul class="nav-center">
+    <li><a href="#projectos">Projectos</a></li>
+    <li><a href="#servicos">Serviços</a></li>
+    <li><a href="#precos">Preços</a></li>
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#blog">Insights</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://www.efival.com" target="_blank" class="nav-website-link">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      efival.com
+    </a>
+    <button class="nav-btn" onclick="openModal()">Entrar</button>
+    <button class="nav-btn solid" onclick="openModal()">Começar Grátis</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="hero-bg-left"></div>
+  <div class="hero-left">
+    <div class="hero-eyebrow">
+      <span class="hero-eyebrow-line"></span>
+      Arquitectura de Excelência — Desde 2010
+    </div>
+    <h1 class="hero-h1">
+      Projectos que<br/>
+      <em>transformam</em><br/>
+      <span class="outline">espaços</span>
+    </h1>
+    <p class="hero-sub">
+      A EFIVAL é a plataforma líder em venda de projectos arquitectónicos premium em Portugal.
+      De <strong>residências de luxo</strong> a <strong>complexos comerciais</strong>, encontre a sua visão.
+    </p>
+    <div class="hero-actions">
+      <a href="#projectos" class="btn-gold">
+        Explorar Projectos
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="#sobre" class="btn-ghost">
+        Conhecer mais
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <div class="hero-scroll">
+      <div class="hero-scroll-track"></div>
+      <span>Scroll</span>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-right-overlay"></div>
+    <div class="hero-arch-canvas">
+      <svg width="520" height="700" viewBox="0 0 520 700" fill="none" xmlns="http://www.w3.org/2000/svg" opacity=".32">
+        <!-- Main building structure -->
+        <rect x="80" y="320" width="360" height="280" stroke="#C8A94B" stroke-width=".7"/>
+        <rect x="80" y="280" width="360" height="40" stroke="#C8A94B" stroke-width=".5"/>
+        <!-- Windows row 1 -->
+        <rect x="100" y="340" width="70" height="90" stroke="#C8A94B" stroke-width=".5"/>
+        <rect x="190" y="340" width="70" height="90" stroke="#C8A94B" stroke-width=".5"/>
+        <rect x="280" y="340" width="70" height="90" stroke="#C8A94B" stroke-width=".5"/>
+        <rect x="370" y="340" width="50" height="90" stroke="#C8A94B" stroke-width=".5"/>
+        <!-- Door -->
+        <rect x="200" y="490" width="120" height="110" stroke="#C8A94B" stroke-width=".6"/>
+        <line x1="260" y1="490" x2="260" y2="600" stroke="#C8A94B" stroke-width=".3" opacity=".5"/>
+        <!-- Roof lines -->
+        <line x1="80" y1="280" x2="260" y2="140" stroke="#C8A94B" stroke-width=".7"/>
+        <line x1="440" y1="280" x2="260" y2="140" stroke="#C8A94B" stroke-width=".7"/>
+        <circle cx="260" cy="140" r="5" fill="#C8A94B"/>
+        <circle cx="260" cy="140" r="12" stroke="#C8A94B" stroke-width=".4" fill="none"/>
+        <!-- Second structure right -->
+        <rect x="440" y="400" width="60" height="200" stroke="#C8A94B" stroke-width=".5"/>
+        <rect x="450" y="420" width="18" height="30" stroke="#C8A94B" stroke-width=".4"/>
+        <rect x="474" y="420" width="18" height="30" stroke="#C8A94B" stroke-width=".4"/>
+        <!-- Ground line -->
+        <line x1="0" y1="600" x2="520" y2="600" stroke="#C8A94B" stroke-width=".35" opacity=".5"/>
+        <!-- Vertical axis -->
+        <line x1="260" y1="80" x2="260" y2="600" stroke="#C8A94B" stroke-width=".2" stroke-dasharray="6 10" opacity=".25"/>
+        <!-- Dimension arrows -->
+        <line x1="80" y1="640" x2="440" y2="640" stroke="#C8A94B" stroke-width=".4" opacity=".6"/>
+        <line x1="80" y1="633" x2="80" y2="647" stroke="#C8A94B" stroke-width=".4" opacity=".6"/>
+        <line x1="440" y1="633" x2="440" y2="647" stroke="#C8A94B" stroke-width=".4" opacity=".6"/>
+        <!-- Labels -->
+        <text x="270" y="290" fill="#C8A94B" font-size="7" font-family="monospace" opacity=".6">ALÇADO PRINCIPAL</text>
+        <text x="108" y="392" fill="#C8A94B" font-size="6" font-family="monospace" opacity=".5">SALA</text>
+        <text x="200" y="392" fill="#C8A94B" font-size="6" font-family="monospace" opacity=".5">HALL</text>
+        <text x="288" y="392" fill="#C8A94B" font-size="6" font-family="monospace" opacity=".5">QUARTO</text>
+        <text x="215" y="558" fill="#C8A94B" font-size="6" font-family="monospace" opacity=".5">ENTRADA</text>
+        <text x="210" y="668" fill="#C8A94B" font-size="7" font-family="monospace" opacity=".5">18.00 m</text>
+        <!-- Elevation markers -->
+        <line x1="40" y1="280" x2="70" y2="280" stroke="#C8A94B" stroke-width=".4" opacity=".5"/>
+        <line x1="40" y1="600" x2="70" y2="600" stroke="#C8A94B" stroke-width=".4" opacity=".5"/>
+        <line x1="55" y1="280" x2="55" y2="600" stroke="#C8A94B" stroke-width=".4" opacity=".5"/>
+        <text x="58" y="450" fill="#C8A94B" font-size="6" font-family="monospace" opacity=".5">8.50m</text>
+        <!-- Compass -->
+        <circle cx="470" cy="160" r="22" stroke="#C8A94B" stroke-width=".5" fill="none" opacity=".5"/>
+        <text x="467" y="143" fill="#C8A94B" font-size="7" font-family="monospace" opacity=".7">N</text>
+        <line x1="470" y1="146" x2="470" y2="178" stroke="#C8A94B" stroke-width=".5" opacity=".6"/>
+        <polygon points="470,148 466,163 474,163" fill="#C8A94B" opacity=".5"/>
+      </svg>
+    </div>
+    <div class="hero-tags">
+      <div class="hero-tag">ISO 9001 Certificado</div>
+      <div class="hero-tag">340+ Projectos</div>
+      <div class="hero-tag">Licenças Incluídas</div>
+    </div>
+    <div class="hero-stats-row">
+      <div class="hstat">
+        <div class="hstat-n">340<sup>+</sup></div>
+        <div class="hstat-l">Projectos</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-n">12K</div>
+        <div class="hstat-l">Clientes</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-n">98<sup>%</sup></div>
+        <div class="hstat-l">Satisfação</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-item">Arquitectura Residencial</span>
+    <span class="ticker-item">Projectos Comerciais</span>
+    <span class="ticker-item">Design de Interiores</span>
+    <span class="ticker-item">Arquitectura Sustentável</span>
+    <span class="ticker-item">Paisagismo Premium</span>
+    <span class="ticker-item">Construção Modular</span>
+    <span class="ticker-item">Renovação & Reabilitação</span>
+    <span class="ticker-item">Certificação Energética</span>
+    <span class="ticker-item">Arquitectura Residencial</span>
+    <span class="ticker-item">Projectos Comerciais</span>
+    <span class="ticker-item">Design de Interiores</span>
+    <span class="ticker-item">Arquitectura Sustentável</span>
+    <span class="ticker-item">Paisagismo Premium</span>
+    <span class="ticker-item">Construção Modular</span>
+    <span class="ticker-item">Renovação & Reabilitação</span>
+    <span class="ticker-item">Certificação Energética</span>
+  </div>
+</div>
+
+<!-- NUMBERS BAND -->
+<div class="numbers-band reveal">
+  <div class="nb-item">
+    <div class="nb-num">340<sup>+</sup></div>
+    <div class="nb-label">Projectos disponíveis</div>
+  </div>
+  <div class="nb-item">
+    <div class="nb-num">12K<sup>+</sup></div>
+    <div class="nb-label">Clientes satisfeitos</div>
+  </div>
+  <div class="nb-item">
+    <div class="nb-num">15<sup>+</sup></div>
+    <div class="nb-label">Anos de experiência</div>
+  </div>
+  <div class="nb-item">
+    <div class="nb-num">98<sup>%</sup></div>
+    <div class="nb-label">Taxa de satisfação</div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="about" id="sobre">
+  <div class="about-visual reveal">
+    <div class="about-img-main">
+      <svg width="280" height="340" viewBox="0 0 280 340" fill="none" opacity=".28">
+        <rect x="30" y="100" width="220" height="200" stroke="#C8A94B" stroke-width=".8"/>
+        <rect x="30" y="70" width="220" height="30" stroke="#C8A94B" stroke-width=".6"/>
+        <rect x="50" y="120" width="55" height="75" stroke="#C8A94B" stroke-width=".5"/>
+        <rect x="120" y="120" width="55" height="75" stroke="#C8A94B" stroke-width=".5"/>
+        <rect x="190" y="120" width="45" height="55" stroke="#C8A94B" stroke-width=".5"/>
+        <rect x="105" y="220" width="70" height="80" stroke="#C8A94B" stroke-width=".5"/>
+        <line x1="30" y1="70" x2="140" y2="20" stroke="#C8A94B" stroke-width=".7"/>
+        <line x1="250" y1="70" x2="140" y2="20" stroke="#C8A94B" stroke-width=".7"/>
+        <circle cx="140" cy="20" r="4" fill="#C8A94B"/>
+        <line x1="0" y1="300" x2="280" y2="300" stroke="#C8A94B" stroke-width=".4" opacity=".5"/>
+        <text x="148" y="85" fill="#C8A94B" font-size="6" font-family="monospace" opacity=".6">PLANTA R/C</text>
+      </svg>
+      <div class="about-img-badge">
+        <div class="big">15</div>
+        <div class="small">Anos de<br/>Excelência</div>
+      </div>
+    </div>
+    <div class="about-img-secondary">
+      <svg width="120" height="120" viewBox="0 0 120 120" fill="none" opacity=".3">
+        <circle cx="60" cy="60" r="50" stroke="#C8A94B" stroke-width=".6"/>
+        <circle cx="60" cy="60" r="35" stroke="#C8A94B" stroke-width=".4"/>
+        <line x1="60" y1="10" x2="60" y2="110" stroke="#C8A94B" stroke-width=".3" opacity=".5"/>
+        <line x1="10" y1="60" x2="110" y2="60" stroke="#C8A94B" stroke-width=".3" opacity=".5"/>
+        <text x="53" y="35" fill="#C8A94B" font-size="6" font-family="monospace" opacity=".7">N</text>
+        <polygon points="60,18 57,32 63,32" fill="#C8A94B" opacity=".5"/>
+      </svg>
+    </div>
+  </div>
+  <div class="about-text reveal reveal-delay-1">
+    <div class="sec-label">Sobre a EFIVAL</div>
+    <h2 class="sec-h">Onde a <em>visão</em><br/>encontra a forma</h2>
+    <p>A EFIVAL nasceu em 2010 da paixão pela arquitectura de excelência. Somos a plataforma de referência que conecta arquitectos talentosos com clientes que procuram projectos excepcionais — de moradias minimalistas a empreendimentos de grande escala.</p>
+    <p>Cada projecto passa por um rigoroso processo de verificação técnica e estética, garantindo documentação completa, conformidade legal e inovação arquitectónica.</p>
+    <div class="about-feats">
+      <div class="af-item">
+        <div class="af-icon">✓</div>
+        <div class="af-title">Projectos Verificados</div>
+        <div class="af-desc">Todos os projectos são validados por arquitectos certificados pela Ordem dos Arquitectos.</div>
+      </div>
+      <div class="af-item">
+        <div class="af-icon">◎</div>
+        <div class="af-title">Suporte Dedicado</div>
+        <div class="af-desc">Equipa técnica disponível para esclarecimentos e adaptações ao seu terreno.</div>
+      </div>
+      <div class="af-item">
+        <div class="af-icon">⊡</div>
+        <div class="af-title">Licenças Completas</div>
+        <div class="af-desc">Toda a documentação legal e técnica incluída, pronta para licenciamento.</div>
+      </div>
+      <div class="af-item">
+        <div class="af-icon">↻</div>
+        <div class="af-title">Actualização Contínua</div>
+        <div class="af-desc">Novos projectos adicionados semanalmente, sempre actualizados com a legislação.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARTNERS -->
+<div class="partners reveal">
+  <div class="partners-label">Parceiros e Certificações</div>
+  <div class="partners-row">
+    <div class="partner-item"><div class="partner-name">Ordem dos Arquitectos</div><div class="partner-sub">Membro Certificado</div></div>
+    <div class="partner-item"><div class="partner-name">ADENE</div><div class="partner-sub">Certificação Energética</div></div>
+    <div class="partner-item"><div class="partner-name">LNEC</div><div class="partner-sub">Laboratório Nacional</div></div>
+    <div class="partner-item"><div class="partner-name">ISO 9001</div><div class="partner-sub">Qualidade Certificada</div></div>
+    <div class="partner-item"><div class="partner-name">APA</div><div class="partner-sub">Sustentabilidade</div></div>
+  </div>
+</div>
+
+<!-- PROJECTS -->
+<section class="projects" id="projectos">
+  <div class="projects-top">
+    <div class="reveal">
+      <div class="sec-label">Portfólio</div>
+      <h2 class="sec-h">Projectos em<br/><em>destaque</em></h2>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px;align-items:flex-end" class="reveal reveal-delay-1">
+      <div class="projects-filters">
+        <button class="pf-btn active" onclick="filterProjects(this,'todos')">Todos</button>
+        <button class="pf-btn" onclick="filterProjects(this,'residencial')">Residencial</button>
+        <button class="pf-btn" onclick="filterProjects(this,'comercial')">Comercial</button>
+        <button class="pf-btn" onclick="filterProjects(this,'premium')">Premium</button>
+      </div>
+      <a href="#" class="btn-ghost" style="color:var(--cream2)">Ver todos os 340 projectos →</a>
+    </div>
+  </div>
+  <div class="projects-grid">
+    <div class="pc proj-1 reveal">
+      <div class="pc-bg pc-bg-1"></div>
+      <div class="pc-svg">
+        <svg width="280" height="360" viewBox="0 0 280 360" fill="none">
+          <rect x="30" y="160" width="220" height="170" stroke="#C8A94B" stroke-width=".8"/>
+          <rect x="50" y="180" width="60" height="90" stroke="#C8A94B" stroke-width=".6"/>
+          <rect x="130" y="180" width="60" height="90" stroke="#C8A94B" stroke-width=".6"/>
+          <rect x="100" y="255" width="80" height="75" stroke="#C8A94B" stroke-width=".6"/>
+          <line x1="30" y1="160" x2="140" y2="70" stroke="#C8A94B" stroke-width=".8"/>
+          <line x1="250" y1="160" x2="140" y2="70" stroke="#C8A94B" stroke-width=".8"/>
+          <circle cx="140" cy="70" r="4" fill="#C8A94B"/>
+          <line x1="0" y1="330" x2="280" y2="330" stroke="#C8A94B" stroke-width=".4" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="pc-new">Novo</div>
+      <div class="pc-rating"><span class="pc-rating-star">★</span><span>4.9</span></div>
+      <div class="pc-overlay">
+        <div class="pc-tag">Residencial · Premium</div>
+        <div class="pc-name">Moradia Atlântica</div>
+        <div class="pc-meta">T4 · 320m² · Contemporâneo · Estoril</div>
+        <div class="pc-price">€ 4.200</div>
+        <div class="pc-actions">
+          <button class="pc-btn" onclick="openModal()">Comprar Projecto</button>
+          <button class="pc-btn-ghost">Ver Detalhes</button>
+        </div>
+      </div>
+    </div>
+    <div class="pc proj-2 reveal reveal-delay-1">
+      <div class="pc-bg pc-bg-2"></div>
+      <div class="pc-svg">
+        <svg width="200" height="220" viewBox="0 0 200 220" fill="none">
+          <rect x="20" y="80" width="160" height="120" stroke="#C8A94B" stroke-width=".8"/>
+          <rect x="20" y="40" width="160" height="40" stroke="#C8A94B" stroke-width=".5"/>
+          <rect x="20" y="20" width="160" height="20" stroke="#C8A94B" stroke-width=".4"/>
+          <rect x="40" y="100" width="40" height="55" stroke="#C8A94B" stroke-width=".5"/>
+          <rect x="120" y="100" width="40" height="55" stroke="#C8A94B" stroke-width=".5"/>
+          <line x1="0" y1="200" x2="200" y2="200" stroke="#C8A94B" stroke-width=".4" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="pc-rating"><span class="pc-rating-star">★</span><span>4.8</span></div>
+      <div class="pc-overlay">
+        <div class="pc-tag">Comercial · Escritórios</div>
+        <div class="pc-name">Torre Empresarial</div>
+        <div class="pc-meta">18 Pisos · 4.800m² · Lisboa</div>
+        <div class="pc-price">€ 18.500</div>
+        <div class="pc-actions">
+          <button class="pc-btn" onclick="openModal()">Comprar</button>
+          <button class="pc-btn-ghost">Ver +</button>
+        </div>
+      </div>
+    </div>
+    <div class="pc proj-3 reveal reveal-delay-2">
+      <div class="pc-bg pc-bg-3"></div>
+      <div class="pc-svg">
+        <svg width="200" height="220" viewBox="0 0 200 220" fill="none">
+          <ellipse cx="100" cy="90" rx="80" ry="55" stroke="#C8A94B" stroke-width=".8" fill="none"/>
+          <rect x="30" y="90" width="140" height="90" stroke="#C8A94B" stroke-width=".8"/>
+          <line x1="0" y1="180" x2="200" y2="180" stroke="#C8A94B" stroke-width=".4" opacity=".5"/>
+          <line x1="100" y1="35" x2="100" y2="180" stroke="#C8A94B" stroke-width=".3" stroke-dasharray="4 6" opacity=".4"/>
+        </svg>
+      </div>
+      <div class="pc-overlay">
+        <div class="pc-tag">Cultural · Público</div>
+        <div class="pc-name">Centro Cultural</div>
+        <div class="pc-meta">Auditório · 1.200m² · Porto</div>
+        <div class="pc-price">€ 9.800</div>
+        <div class="pc-actions">
+          <button class="pc-btn" onclick="openModal()">Comprar</button>
+          <button class="pc-btn-ghost">Ver +</button>
+        </div>
+      </div>
+    </div>
+    <div class="pc proj-4 reveal">
+      <div class="pc-bg pc-bg-4"></div>
+      <div class="pc-svg">
+        <svg width="380" height="200" viewBox="0 0 380 200" fill="none">
+          <rect x="20" y="60" width="340" height="120" stroke="#C8A94B" stroke-width=".8"/>
+          <rect x="40" y="78" width="50" height="65" stroke="#C8A94B" stroke-width=".5"/>
+          <rect x="110" y="78" width="50" height="65" stroke="#C8A94B" stroke-width=".5"/>
+          <rect x="180" y="78" width="50" height="65" stroke="#C8A94B" stroke-width=".5"/>
+          <rect x="250" y="78" width="50" height="65" stroke="#C8A94B" stroke-width=".5"/>
+          <rect x="155" y="135" width="70" height="45" stroke="#C8A94B" stroke-width=".5"/>
+          <line x1="20" y1="60" x2="190" y2="20" stroke="#C8A94B" stroke-width=".7"/>
+          <line x1="360" y1="60" x2="190" y2="20" stroke="#C8A94B" stroke-width=".7"/>
+          <circle cx="190" cy="20" r="3" fill="#C8A94B"/>
+          <line x1="0" y1="180" x2="380" y2="180" stroke="#C8A94B" stroke-width=".4" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="pc-new">Exclusivo</div>
+      <div class="pc-rating"><span class="pc-rating-star">★</span><span>5.0</span></div>
+      <div class="pc-overlay">
+        <div class="pc-tag">Hotelaria · Luxo 5 estrelas</div>
+        <div class="pc-name">Boutique Hotel Douro</div>
+        <div class="pc-meta">42 Quartos · 3.600m² · Vale do Douro</div>
+        <div class="pc-price">€ 24.000</div>
+        <div class="pc-actions">
+          <button class="pc-btn" onclick="openModal()">Comprar Projecto</button>
+          <button class="pc-btn-ghost">Ver Detalhes</button>
+        </div>
+      </div>
+    </div>
+    <div class="pc proj-5 reveal reveal-delay-1">
+      <div class="pc-bg pc-bg-5"></div>
+      <div class="pc-svg">
+        <svg width="200" height="220" viewBox="0 0 200 220" fill="none">
+          <rect x="15" y="50" width="75" height="140" stroke="#C8A94B" stroke-width=".8"/>
+          <rect x="110" y="80" width="75" height="110" stroke="#C8A94B" stroke-width=".8"/>
+          <rect x="25" y="70" width="28" height="45" stroke="#C8A94B" stroke-width=".5"/>
+          <rect x="62" y="70" width="18" height="45" stroke="#C8A94B" stroke-width=".5"/>
+          <rect x="120" y="95" width="28" height="45" stroke="#C8A94B" stroke-width=".5"/>
+          <line x1="0" y1="190" x2="200" y2="190" stroke="#C8A94B" stroke-width=".4" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="pc-rating"><span class="pc-rating-star">★</span><span>4.7</span></div>
+      <div class="pc-overlay">
+        <div class="pc-tag">Residencial · Minimalista</div>
+        <div class="pc-name">Casa da Serra</div>
+        <div class="pc-meta">T3 · 180m² · Sustentável · Sintra</div>
+        <div class="pc-price">€ 2.900</div>
+        <div class="pc-actions">
+          <button class="pc-btn" onclick="openModal()">Comprar</button>
+          <button class="pc-btn-ghost">Ver +</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services" id="servicos">
+  <div class="services-left">
+    <div class="sec-label reveal">O que oferecemos</div>
+    <h2 class="sec-h reveal reveal-delay-1">Serviços<br/><em>completos</em></h2>
+    <p class="reveal reveal-delay-2">Da concepção à construção, a EFIVAL oferece soluções integrais para todos os tipos de projectos arquitectónicos, com suporte técnico especializado.</p>
+    <a href="#" class="btn-gold reveal reveal-delay-3">
+      Ver todos os serviços
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="services-grid reveal reveal-delay-1">
+    <div class="sv-item">
+      <div class="sv-num">01</div>
+      <div class="sv-icon">⌂</div>
+      <div class="sv-title">Projectos Residenciais</div>
+      <div class="sv-desc">Moradias, apartamentos e condomínios de todos os estilos e dimensões, totalmente personalizáveis.</div>
+      <span class="sv-arrow">→</span>
+    </div>
+    <div class="sv-item">
+      <div class="sv-num">02</div>
+      <div class="sv-icon">⊞</div>
+      <div class="sv-title">Arquitectura Comercial</div>
+      <div class="sv-desc">Escritórios, lojas, restaurantes e espaços de trabalho com design optimizado para produtividade.</div>
+      <span class="sv-arrow">→</span>
+    </div>
+    <div class="sv-item">
+      <div class="sv-num">03</div>
+      <div class="sv-icon">◈</div>
+      <div class="sv-title">Design de Interiores</div>
+      <div class="sv-desc">Projectos completos de interiores com selecção de materiais, mobiliário e iluminação premium.</div>
+      <span class="sv-arrow">→</span>
+    </div>
+    <div class="sv-item">
+      <div class="sv-num">04</div>
+      <div class="sv-icon">◉</div>
+      <div class="sv-title">Arquitectura Sustentável</div>
+      <div class="sv-desc">Certificação energética, materiais ecológicos e sistemas passivos de eficiência ambiental.</div>
+      <span class="sv-arrow">→</span>
+    </div>
+    <div class="sv-item">
+      <div class="sv-num">05</div>
+      <div class="sv-icon">↺</div>
+      <div class="sv-title">Renovação & Reabilitação</div>
+      <div class="sv-desc">Transformação de espaços existentes com respeito pelo património e integração contemporânea.</div>
+      <span class="sv-arrow">→</span>
+    </div>
+    <div class="sv-item">
+      <div class="sv-num">06</div>
+      <div class="sv-icon">⊙</div>
+      <div class="sv-title">Consultoria Técnica</div>
+      <div class="sv-desc">Apoio especializado em regulamentos, licenciamentos e optimização de projectos para construção.</div>
+      <span class="sv-arrow">→</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="hiw">
+  <div class="hiw-header reveal">
+    <div class="sec-label">Como funciona</div>
+    <h2 class="sec-h">Do projecto à <em>obra</em></h2>
+  </div>
+  <div class="hiw-steps">
+    <div class="hiw-step reveal">
+      <div class="hiw-step-icon">○</div>
+      <div class="hiw-step-title">Registe-se</div>
+      <div class="hiw-step-desc">Crie a sua conta gratuitamente com Google, Apple ou email em menos de 30 segundos.</div>
+      <div class="hiw-step-n">01</div>
+      <div class="hiw-connector">→</div>
+    </div>
+    <div class="hiw-step reveal reveal-delay-1">
+      <div class="hiw-step-icon">◫</div>
+      <div class="hiw-step-title">Explore</div>
+      <div class="hiw-step-desc">Navegue pelo nosso catálogo de 340+ projectos, filtre por tipologia, área e preço.</div>
+      <div class="hiw-step-n">02</div>
+      <div class="hiw-connector">→</div>
+    </div>
+    <div class="hiw-step reveal reveal-delay-2">
+      <div class="hiw-step-icon">◎</div>
+      <div class="hiw-step-title">Adquira</div>
+      <div class="hiw-step-desc">Pagamento seguro com acesso imediato a toda a documentação técnica e plantas.</div>
+      <div class="hiw-step-n">03</div>
+      <div class="hiw-connector">→</div>
+    </div>
+    <div class="hiw-step reveal reveal-delay-3">
+      <div class="hiw-step-icon">⊡</div>
+      <div class="hiw-step-title">Construa</div>
+      <div class="hiw-step-desc">Receba todos os ficheiros CAD, memórias descritivas e especificações para avançar com a obra.</div>
+      <div class="hiw-step-n">04</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="precos">
+  <div class="pricing-header reveal">
+    <div>
+      <div class="sec-label">Planos & Preços</div>
+      <h2 class="sec-h">Escolha o seu<br/><em>plano</em></h2>
+    </div>
+    <div class="pricing-toggle">
+      <span class="toggle-label active" id="toggle-monthly">Mensal</span>
+      <div class="toggle-track" id="toggle" onclick="toggleBilling()">
+        <div class="toggle-thumb"></div>
+      </div>
+      <span class="toggle-label" id="toggle-annual">Anual <span class="toggle-save">-20%</span></span>
+    </div>
+  </div>
+  <div class="pricing-grid">
+    <div class="price-card reveal">
+      <div class="pc-tier">Explorador</div>
+      <div class="pc-price-row">
+        <div class="pc-amount">Grátis</div>
+      </div>
+      <div class="pc-period">acesso básico, sempre</div>
+      <div class="pc-divider"></div>
+      <ul class="pc-feats">
+        <li>Visualização de projectos</li>
+        <li>Acesso a 20 projectos/mês</li>
+        <li>Suporte por email</li>
+        <li>Downloads em baixa resolução</li>
+        <li class="disabled">Licença comercial</li>
+        <li class="disabled">Suporte prioritário</li>
+      </ul>
+      <button class="pc-cta" onclick="openModal()">Começar grátis</button>
+    </div>
+    <div class="price-card featured reveal reveal-delay-1">
+      <div class="pc-ribbon">Mais Popular</div>
+      <div class="pc-tier">Profissional</div>
+      <div class="pc-price-row">
+        <div class="pc-currency">€</div>
+        <div class="pc-amount" id="pro-price">49</div>
+      </div>
+      <div class="pc-period" id="pro-period">por mês, cobrado anualmente</div>
+      <div class="pc-divider"></div>
+      <ul class="pc-feats">
+        <li>Projectos ilimitados</li>
+        <li>Ficheiros CAD em alta resolução</li>
+        <li>Suporte prioritário 24/7</li>
+        <li>Licença comercial incluída</li>
+        <li>Acesso antecipado a novidades</li>
+        <li>Personalização básica incluída</li>
+      </ul>
+      <button class="pc-cta" onclick="openModal()">Subscrever agora</button>
+    </div>
+    <div class="price-card reveal reveal-delay-2">
+      <div class="pc-tier">Empresa</div>
+      <div class="pc-price-row">
+        <div class="pc-currency" style="color:var(--gold)">€</div>
+        <div class="pc-amount" id="ent-price">199</div>
+      </div>
+      <div class="pc-period" id="ent-period">por mês, cobrado anualmente</div>
+      <div class="pc-divider"></div>
+      <ul class="pc-feats">
+        <li>Tudo do plano Profissional</li>
+        <li>Até 10 utilizadores</li>
+        <li>Projectos exclusivos</li>
+        <li>Personalização completa</li>
+        <li>Gestor de conta dedicado</li>
+        <li>API de integração incluída</li>
+      </ul>
+      <button class="pc-cta" onclick="openModal()">Contactar equipa</button>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="testemunhos">
+  <div class="sec-label reveal">Testemunhos</div>
+  <h2 class="sec-h reveal reveal-delay-1">O que dizem<br/>os nossos <em>clientes</em></h2>
+  <div class="test-grid">
+    <div class="test-card reveal">
+      <div class="test-verified"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--gold)"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg><span>Verificado</span></div>
+      <div class="test-quote">"</div>
+      <div class="test-stars">★★★★★</div>
+      <p class="test-text">A qualidade dos projectos EFIVAL é incomparável. Encontrei o projecto perfeito para a minha moradia em menos de uma hora. Documentação completa e suporte excecional.</p>
+      <div class="test-author">
+        <div class="test-av">AR</div>
+        <div>
+          <div class="test-name">Ana Rodrigues</div>
+          <div class="test-role">Cliente particular · Lisboa</div>
+        </div>
+      </div>
+    </div>
+    <div class="test-card reveal reveal-delay-1">
+      <div class="test-verified"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--gold)"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg><span>Verificado</span></div>
+      <div class="test-quote">"</div>
+      <div class="test-stars">★★★★★</div>
+      <p class="test-text">Utilizamos a plataforma para o nosso escritório de arquitectura. A relação qualidade-preço é extraordinária e poupa imenso tempo de preparação técnica.</p>
+      <div class="test-author">
+        <div class="test-av">MC</div>
+        <div>
+          <div class="test-name">Miguel Costa</div>
+          <div class="test-role">Arquitecto Senior · Porto</div>
+        </div>
+      </div>
+    </div>
+    <div class="test-card reveal reveal-delay-2">
+      <div class="test-verified"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--gold)"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg><span>Verificado</span></div>
+      <div class="test-quote">"</div>
+      <div class="test-stars">★★★★★</div>
+      <p class="test-text">Impressionante variedade de projectos. A documentação técnica está completa e pronta para submeter ao município. Poupámos semanas de trabalho.</p>
+      <div class="test-author">
+        <div class="test-av">SF</div>
+        <div>
+          <div class="test-name">Sofia Ferreira</div>
+          <div class="test-role">Promotora Imobiliária · Algarve</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section class="blog" id="blog">
+  <div class="reveal" style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:52px;flex-wrap:wrap;gap:20px">
+    <div>
+      <div class="sec-label">Insights & Tendências</div>
+      <h2 class="sec-h">Arquitectura em<br/><em>foco</em></h2>
+    </div>
+    <a href="#" class="btn-ghost" style="color:var(--cream2)">Ver todos os artigos →</a>
+  </div>
+  <div class="blog-grid">
+    <div class="blog-card reveal">
+      <div class="blog-card-img">
+        <svg width="300" height="200" viewBox="0 0 300 200" fill="none" opacity=".25">
+          <rect x="20" y="40" width="260" height="140" stroke="#C8A94B" stroke-width=".7"/>
+          <rect x="40" y="60" width="80" height="100" stroke="#C8A94B" stroke-width=".5"/>
+          <rect x="140" y="60" width="80" height="100" stroke="#C8A94B" stroke-width=".5"/>
+          <rect x="240" y="80" width="30" height="80" stroke="#C8A94B" stroke-width=".5"/>
+          <line x1="20" y1="40" x2="150" y2="10" stroke="#C8A94B" stroke-width=".7"/>
+          <line x1="280" y1="40" x2="150" y2="10" stroke="#C8A94B" stroke-width=".7"/>
+          <circle cx="150" cy="10" r="3" fill="#C8A94B"/>
+        </svg>
+      </div>
+      <div class="blog-card-body">
+        <div class="blog-tag">Tendências 2026</div>
+        <div class="blog-title">As 10 tendências de arquitectura residencial que dominarão 2026</div>
+        <div class="blog-meta"><span>15 Fev 2026</span><span>8 min leitura</span></div>
+      </div>
+      <div class="blog-arrow">→</div>
+    </div>
+    <div class="blog-card reveal reveal-delay-1">
+      <div class="blog-card-img">
+        <svg width="200" height="150" viewBox="0 0 200 150" fill="none" opacity=".25">
+          <circle cx="100" cy="75" r="60" stroke="#C8A94B" stroke-width=".7" fill="none"/>
+          <circle cx="100" cy="75" r="40" stroke="#C8A94B" stroke-width=".4" fill="none"/>
+          <line x1="40" y1="75" x2="160" y2="75" stroke="#C8A94B" stroke-width=".4" opacity=".5"/>
+          <line x1="100" y1="15" x2="100" y2="135" stroke="#C8A94B" stroke-width=".4" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="blog-card-body">
+        <div class="blog-tag">Sustentabilidade</div>
+        <div class="blog-title">Certificação energética: guia completo para arquitectos</div>
+        <div class="blog-meta"><span>8 Fev 2026</span><span>6 min leitura</span></div>
+      </div>
+      <div class="blog-arrow">→</div>
+    </div>
+    <div class="blog-card reveal reveal-delay-2">
+      <div class="blog-card-img">
+        <svg width="200" height="150" viewBox="0 0 200 150" fill="none" opacity=".25">
+          <rect x="20" y="30" width="160" height="100" stroke="#C8A94B" stroke-width=".7"/>
+          <rect x="35" y="45" width="40" height="60" stroke="#C8A94B" stroke-width=".5"/>
+          <rect x="125" y="45" width="40" height="60" stroke="#C8A94B" stroke-width=".5"/>
+          <rect x="80" y="75" width="40" height="55" stroke="#C8A94B" stroke-width=".5"/>
+        </svg>
+      </div>
+      <div class="blog-card-body">
+        <div class="blog-tag">Regulamentação</div>
+        <div class="blog-title">RJUE 2025: o que mudou no licenciamento urbano</div>
+        <div class="blog-meta"><span>1 Fev 2026</span><span>5 min leitura</span></div>
+      </div>
+      <div class="blog-arrow">→</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band reveal">
+  <div>
+    <h2>Pronto para encontrar o seu <em>projecto perfeito</em>?</h2>
+    <p class="cta-band-sub">Junte-se a mais de 12.000 clientes satisfeitos. Registe-se gratuitamente hoje.</p>
+  </div>
+  <div class="cta-band-actions">
+    <button class="btn-dark" onclick="openModal()">Começar Grátis</button>
+    <button class="btn-outline-dark" onclick="openModal()">Ver Projectos</button>
+  </div>
+</div>
+
+<!-- NEWSLETTER -->
+<section class="newsletter" id="newsletter">
+  <div class="reveal">
+    <div class="sec-label">Newsletter</div>
+    <h2 class="sec-h">Fique a par das<br/><em>novidades</em></h2>
+    <p style="font-size:.88rem;color:var(--cream2);opacity:.55;line-height:1.85;margin-top:16px;">Receba semanalmente os novos projectos, tendências de arquitectura e artigos exclusivos directamente no seu email.</p>
+  </div>
+  <div class="reveal reveal-delay-1">
+    <div class="nl-form">
+      <input class="nl-input" type="email" placeholder="O seu endereço de email" id="nl-email" />
+      <button class="nl-btn" onclick="subscribeNewsletter()">Subscrever</button>
+    </div>
+    <p class="nl-note">Sem spam. Apenas conteúdo de valor. Cancele quando quiser.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contacto">
+  <div class="footer-top">
+    <div>
+      <span class="footer-logo">EFIVAL</span>
+      <p class="footer-desc">A plataforma de referência em arquitectura e venda de projectos arquitectónicos em Portugal e no mundo lusófono. Excelência desde 2010.</p>
+      <div class="footer-social-row">
+        <a href="#" class="footer-social">in</a>
+        <a href="#" class="footer-social">f</a>
+        <a href="#" class="footer-social">ig</a>
+        <a href="#" class="footer-social">yt</a>
+        <a href="#" class="footer-social">X</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Plataforma</div>
+      <ul class="footer-links">
+        <li><a href="#">Explorar Projectos</a></li>
+        <li><a href="#">Como Funciona</a></li>
+        <li><a href="#">Preços e Planos</a></li>
+        <li><a href="#">Para Arquitectos</a></li>
+        <li><a href="#">API & Integrações</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Empresa</div>
+      <ul class="footer-links">
+        <li><a href="#">Sobre a EFIVAL</a></li>
+        <li><a href="#">Equipa</a></li>
+        <li><a href="#">Carreiras</a></li>
+        <li><a href="#">Imprensa</a></li>
+        <li><a href="#">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Suporte</div>
+      <ul class="footer-links">
+        <li><a href="#">Centro de Ajuda</a></li>
+        <li><a href="#">Contacto</a></li>
+        <li><a href="#">Comunidade</a></li>
+        <li><a href="#">Estado do Sistema</a></li>
+        <li><a href="#">Acessibilidade</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-website-bar">
+    <span class="footer-website-label">Acesso Rápido</span>
+    <a href="https://www.efival.com" target="_blank" class="footer-website-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      www.efival.com
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </a>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 EFIVAL, Lda. NIF 514 XXX XXX · Lisboa, Portugal</span>
+    <div class="footer-badge">
+      <div class="footer-badge-dot"></div>
+      <span>Todos os sistemas operacionais</span>
+    </div>
+    <div class="footer-legal">
+      <a href="#">Termos de Serviço</a>
+      <a href="#">Privacidade</a>
+      <a href="#">Cookies</a>
+      <a href="#">RGPD</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // === Cursor ===
+  const cur = document.getElementById('cur');
+  const ring = document.getElementById('cur-ring');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+  function animRing(){ rx+=(mx-rx)*.12; ry+=(my-ry)*.12; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(animRing); }
+  animRing();
+  document.querySelectorAll('a,button,.pc,.blog-card,.sv-item,.hiw-step,.price-card,.test-card').forEach(el=>{
+    el.addEventListener('mouseenter',()=>document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave',()=>document.body.classList.remove('cursor-hover'));
+  });
+
+  // === Scroll progress & nav ===
+  const navbar = document.getElementById('navbar');
+  const progress = document.getElementById('progress');
+  window.addEventListener('scroll',()=>{
+    const s=document.documentElement.scrollTop;
+    const h=document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.width=(s/h*100)+'%';
+    navbar.classList.toggle('scrolled', s>60);
+  });
+
+  // === Modal ===
+  function openModal(){ document.getElementById('modal').classList.add('open'); }
+  function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+  document.getElementById('modal').addEventListener('click',e=>{ if(e.target===document.getElementById('modal')) closeModal(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+  // === Login ===
+  function doLogin(provider){
+    closeModal();
+    showToast('✅ Bem-vindo à EFIVAL!', `Login com ${provider} realizado com sucesso. Explore os nossos projectos.`);
+  }
+
+  // === Toast ===
+  const toastEl = document.getElementById('toast');
+  let toastTimer;
+  function showToast(title, msg){
+    clearTimeout(toastTimer);
+    document.getElementById('toast-title').textContent=title;
+    document.getElementById('toast-msg').textContent=msg;
+    toastEl.classList.add('show');
+    toastTimer=setTimeout(()=>toastEl.classList.remove('show'), 4500);
+  }
+  setTimeout(()=> showToast('Bem-vindo à EFIVAL ✦', 'Descubra os melhores projectos de arquitectura em Portugal.'), 2200);
+
+  // === Reveal on scroll ===
+  const revealObs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); revealObs.unobserve(e.target); } });
+  },{ threshold:0.08 });
+  document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+
+  // === Project filters ===
+  function filterProjects(btn, cat){
+    document.querySelectorAll('.pf-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // === Pricing toggle ===
+  let isAnnual = true;
+  function toggleBilling(){
+    isAnnual=!isAnnual;
+    const track=document.getElementById('toggle');
+    track.classList.toggle('on',!isAnnual);
+    document.getElementById('toggle-monthly').classList.toggle('active',!isAnnual);
+    document.getElementById('toggle-annual').classList.toggle('active',isAnnual);
+    document.getElementById('pro-price').textContent = isAnnual ? '49' : '59';
+    document.getElementById('ent-price').textContent = isAnnual ? '199' : '239';
+    document.getElementById('pro-period').textContent = isAnnual ? 'por mês, cobrado anualmente' : 'por mês';
+    document.getElementById('ent-period').textContent = isAnnual ? 'por mês, cobrado anualmente' : 'por mês';
+  }
+
+  // === Newsletter ===
+  function subscribeNewsletter(){
+    const email = document.getElementById('nl-email').value.trim();
+    if(!email||!email.includes('@')){ showToast('⚠️ Email inválido','Por favor insira um endereço de email válido.'); return; }
+    document.getElementById('nl-email').value='';
+    showToast('✅ Subscrito com sucesso!','Obrigado! Irá receber os nossos updates semanais em breve.');
+  }
+
+  // === Counter animation ===
+  function animateCounter(el, target, suffix=''){
+    let cur=0; const step=target/60; const isFloat=target<10;
+    const iv=setInterval(()=>{
+      cur+=step; if(cur>=target){ el.textContent=(isFloat?target:Math.floor(target))+suffix; clearInterval(iv); return; }
+      el.textContent=(isFloat?cur.toFixed(1):Math.floor(cur))+suffix;
+    },16);
+  }
+  const nbObs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.querySelectorAll('.nb-num').forEach(num=>{
+          const txt=num.textContent; const match=txt.match(/[\d.]+/);
+          if(match){ const val=parseFloat(match[0]); const sup=num.querySelector('sup'); if(sup) num.innerHTML=`<span class="n-val">0</span><sup>${sup.textContent}</sup>`; else num.innerHTML=`<span class="n-val">0</span>`; animateCounter(num.querySelector('.n-val'),val,txt.includes('K')?'K':txt.includes('%')?'%':''); }
+        });
+        nbObs.unobserve(e.target);
+      }
+    });
+  },{threshold:.5});
+  document.querySelectorAll('.numbers-band').forEach(el=>nbObs.observe(el));
+</script>
+</body>
+</html>
